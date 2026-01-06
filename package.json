@@ -7,10 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "parse-gtfs": "node scripts/parse.js"
   },
   "dependencies": {
     "@turf/turf": "^7.3.1",
+    "better-sqlite3": "^12.5.0",
+    "gtfs": "^4.18.2",
     "maplibre-gl": "^5.15.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

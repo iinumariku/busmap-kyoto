@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useEffect } from 'react';
+import * as React from 'react';
 import Map from 'react-map-gl/maplibre';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './App.css';
 
 const App = () => {
+
   return (
     <div className="App">
       <Map
