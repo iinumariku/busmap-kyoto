@@ -11,7 +11,8 @@
     "parse-gtfs": "node scripts/parse.js"
   },
   "dependencies": {
-    "@turf/turf": "^7.3.1",
+    "@turf/distance": "^7.3.2",
+    "@turf/turf": "^7.3.2",
     "better-sqlite3": "^12.5.0",
     "gtfs": "^4.18.2",
     "maplibre-gl": "^5.15.0",
