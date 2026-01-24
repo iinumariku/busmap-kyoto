@@ -303,7 +303,7 @@ function App() {
         <div
           style={{
             position: 'absolute',
-            bottom: 'max(20px, env(safe-area-inset-bottom, 0px))',
+            bottom: 'max(40px, env(safe-area-inset-bottom, 0px))',
             left: 10,
             right: 10,
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
