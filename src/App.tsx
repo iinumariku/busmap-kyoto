@@ -71,6 +71,7 @@ function App() {
   const [nearestStops, setNearestStops] = useState<NearestStop[]>([]);
   const [isListExpanded, setIsListExpanded] = useState(false);
   const [selectedStop, setSelectedStop] = useState<SelectedStop | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -86,6 +87,7 @@ function App() {
         },
         (error) => {
           console.warn('位置情報の取得に失敗しました:', error.message);
+          setLocationError('位置情報を取得できませんでした');
           setUserLocation(FALLBACK_LOCATION);
         },
         {
@@ -96,6 +98,7 @@ function App() {
       );
     } else {
       console.warn('このブラウザは位置情報をサポートしていません');
+      setLocationError('このブラウザは位置情報をサポートしていません');
       setUserLocation(FALLBACK_LOCATION);
     }
   }, []);
@@ -300,14 +303,14 @@ function App() {
         <div
           style={{
             position: 'absolute',
-            bottom: 20,
-            left: 20,
-            right: 20,
+            bottom: 10,
+            left: 10,
+            right: 10,
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             borderRadius: 12,
-            padding: 16,
+            padding: 12,
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            maxHeight: isListExpanded ? '40vh' : 'auto',
+            maxHeight: isListExpanded ? '50vh' : 'auto',
             overflowY: isListExpanded ? 'auto' : 'hidden',
           }}
         >
@@ -315,14 +318,16 @@ function App() {
             onClick={() => setIsListExpanded(!isListExpanded)}
             style={{
               margin: 0,
-              marginBottom: isListExpanded ? 12 : 0,
-              fontSize: 14,
+              marginBottom: isListExpanded ? 10 : 0,
+              fontSize: 15,
               color: '#333',
               cursor: 'pointer',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               userSelect: 'none',
+              padding: '4px 0',
+              minHeight: 32,
             }}
           >
             <span>🚌 最寄りのバス停</span>
@@ -331,42 +336,79 @@ function App() {
             </span>
           </h3>
           {isListExpanded && (
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-              {nearestStops.map((stop, index) => (
-                <li
-                  key={`${stop.desc}-${index}`}
-                  onClick={() => window.open(stop.url, '_blank')}
+            <>
+              {locationError && (
+                <div
                   style={{
                     padding: '10px 12px',
-                    marginBottom: index < nearestStops.length - 1 ? 8 : 0,
-                    backgroundColor: '#f5f5f5',
+                    marginBottom: 8,
+                    backgroundColor: '#FFF3CD',
                     borderRadius: 8,
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#e8e8e8';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    fontSize: 12,
+                    color: '#856404',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 14, color: '#333' }}>
-                        {stop.name}
+                  ⚠️ {locationError}（デフォルト位置を使用中）
+                </div>
+              )}
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {nearestStops.map((stop, index) => (
+                  <li
+                    key={`${stop.desc}-${index}`}
+                    style={{
+                      padding: '12px',
+                      marginBottom: index < nearestStops.length - 1 ? 8 : 0,
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                      <div
+                        onClick={() => window.open(stop.url, '_blank')}
+                        style={{ flex: 1, cursor: 'pointer', minWidth: 0 }}
+                      >
+                        <div style={{ fontWeight: 600, fontSize: 14, color: '#333', wordBreak: 'break-word' }}>
+                          {stop.name}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#666', marginTop: 2, wordBreak: 'break-word' }}>
+                          {stop.desc}
+                        </div>
                       </div>
-                      <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-                        {stop.desc}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                        <div style={{ fontSize: 13, color: '#4285F4', fontWeight: 500 }}>
+                          {stop.distance}m
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewState({
+                              longitude: stop.coordinates[0],
+                              latitude: stop.coordinates[1],
+                              zoom: 17,
+                            });
+                          }}
+                          style={{
+                            padding: '8px 10px',
+                            backgroundColor: '#4285F4',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 6,
+                            fontSize: 11,
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          ズーム
+                        </button>
                       </div>
                     </div>
-                    <div style={{ fontSize: 13, color: '#4285F4', fontWeight: 500 }}>
-                      {stop.distance}m
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       )}

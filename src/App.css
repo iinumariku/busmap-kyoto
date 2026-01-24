@@ -1,0 +1,37 @@
+/* グローバルスタイル */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+/* MapLibre GL のポップアップ調整 */
+.maplibregl-popup-content {
+  padding: 12px !important;
+  border-radius: 8px !important;
+  min-width: 180px;
+}
+
+.maplibregl-popup-close-button {
+  font-size: 18px;
+  padding: 4px 8px;
+}
+
+/* スマホ向け調整 */
+@media (max-width: 480px) {
+  .maplibregl-popup-content {
+    min-width: 200px;
+    font-size: 14px;
+  }
+  
+  .maplibregl-popup-close-button {
+    font-size: 22px;
+    padding: 6px 10px;
+  }
+}
