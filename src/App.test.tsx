@@ -48,14 +48,18 @@ const mockStopsData = {
     ],
 };
 
+// fetchモックを変数で保持
+let mockFetch: ReturnType<typeof vi.fn>;
+
 describe('App', () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
         // fetchのモック
-        global.fetch = vi.fn().mockResolvedValue({
+        mockFetch = vi.fn().mockResolvedValue({
             json: () => Promise.resolve(mockStopsData),
         });
+        vi.stubGlobal('fetch', mockFetch);
 
         // geolocationのモック
         const mockGeolocation = {
@@ -90,7 +94,7 @@ describe('App', () => {
         render(<App />);
 
         await waitFor(() => {
-            expect(global.fetch).toHaveBeenCalledWith('/stops.geojson');
+            expect(mockFetch).toHaveBeenCalledWith('/stops.geojson');
         });
 
         await waitFor(() => {
