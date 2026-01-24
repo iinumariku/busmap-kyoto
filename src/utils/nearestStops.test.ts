@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findNearestStops, StopsGeoJSON, UserLocation } from './nearestStops';
+import type { findNearestStops, StopsGeoJSON, UserLocation } from './nearestStops';
 
 // テスト用のサンプルデータ
 const sampleStopsData: StopsGeoJSON = {
