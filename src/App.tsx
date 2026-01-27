@@ -149,6 +149,22 @@ function App() {
     setNearestStops(nearest);
   }, [userLocation, stopsData]);
 
+  // stopsDataがロードされた時にもmapBoundsを更新（初回表示時のタイミング問題を解決）
+  useEffect(() => {
+    if (!stopsData || !mapLoaded || !mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    if (map) {
+      const bounds = map.getBounds();
+      setMapBounds({
+        minLng: bounds.getWest(),
+        maxLng: bounds.getEast(),
+        minLat: bounds.getSouth(),
+        maxLat: bounds.getNorth(),
+      });
+    }
+  }, [stopsData, mapLoaded]);
+
   // 表示領域内のバス停のみフィルタリング
   const visibleStops = useMemo(() => {
     if (!stopsData || !mapBounds) return [];
