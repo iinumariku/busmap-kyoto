@@ -13,6 +13,10 @@ vi.mock('react-map-gl/maplibre', () => ({
     Popup: ({ children }: { children?: React.ReactNode }) => (
         <div data-testid="popup">{children}</div>
     ),
+    Source: ({ children }: { children?: React.ReactNode }) => (
+        <div data-testid="source">{children}</div>
+    ),
+    Layer: () => <div data-testid="layer" />,
 }));
 
 vi.mock('maplibre-gl', () => ({

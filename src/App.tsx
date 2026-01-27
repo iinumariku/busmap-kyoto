@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl/maplibre';
 import type { MapRef } from 'react-map-gl/maplibre';
 import maplibregl from 'maplibre-gl';
@@ -63,7 +63,7 @@ function App() {
   const [viewState, setViewState] = useState({
     longitude: FALLBACK_LOCATION.longitude,
     latitude: FALLBACK_LOCATION.latitude,
-    zoom: 14,
+    zoom: 18,
   });
 
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -72,6 +72,12 @@ function App() {
   const [isListExpanded, setIsListExpanded] = useState(false);
   const [selectedStop, setSelectedStop] = useState<SelectedStop | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [mapBounds, setMapBounds] = useState<{
+    minLng: number;
+    maxLng: number;
+    minLat: number;
+    maxLat: number;
+  } | null>(null);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -143,6 +149,21 @@ function App() {
     setNearestStops(nearest);
   }, [userLocation, stopsData]);
 
+  // 表示領域内のバス停のみフィルタリング
+  const visibleStops = useMemo(() => {
+    if (!stopsData || !mapBounds) return [];
+
+    return stopsData.features.filter((feature) => {
+      const [lng, lat] = feature.geometry.coordinates;
+      return (
+        lng >= mapBounds.minLng &&
+        lng <= mapBounds.maxLng &&
+        lat >= mapBounds.minLat &&
+        lat <= mapBounds.maxLat
+      );
+    });
+  }, [stopsData, mapBounds]);
+
 
   // マップがロードされた後のスタイル設定
   useEffect(() => {
@@ -199,6 +220,30 @@ function App() {
 
   const handleMapLoad = () => {
     setMapLoaded(true);
+    // 初回の表示領域を取得
+    const map = mapRef.current?.getMap();
+    if (map) {
+      const bounds = map.getBounds();
+      setMapBounds({
+        minLng: bounds.getWest(),
+        maxLng: bounds.getEast(),
+        minLat: bounds.getSouth(),
+        maxLat: bounds.getNorth(),
+      });
+    }
+  };
+
+  const handleMoveEnd = () => {
+    const map = mapRef.current?.getMap();
+    if (map) {
+      const bounds = map.getBounds();
+      setMapBounds({
+        minLng: bounds.getWest(),
+        maxLng: bounds.getEast(),
+        minLat: bounds.getSouth(),
+        maxLat: bounds.getNorth(),
+      });
+    }
   };
 
   return (
@@ -207,6 +252,7 @@ function App() {
         ref={mapRef}
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
+        onMoveEnd={handleMoveEnd}
         onLoad={handleMapLoad}
         mapLib={maplibregl}
         style={{ width: '100%', height: '100%' }}
@@ -230,8 +276,8 @@ function App() {
             />
           </Marker>
         )}
-        {/* バス停マーカー */}
-        {stopsData?.features.map((feature) => (
+        {/* バス停マーカー（表示領域内のみ） */}
+        {visibleStops.map((feature) => (
           <Marker
             key={feature.properties.stop_id}
             longitude={feature.geometry.coordinates[0]}
