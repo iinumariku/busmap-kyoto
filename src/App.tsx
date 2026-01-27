@@ -63,7 +63,7 @@ function App() {
   const [viewState, setViewState] = useState({
     longitude: FALLBACK_LOCATION.longitude,
     latitude: FALLBACK_LOCATION.latitude,
-    zoom: 17,
+    zoom: 16,
   });
 
   const [mapLoaded, setMapLoaded] = useState(false);
